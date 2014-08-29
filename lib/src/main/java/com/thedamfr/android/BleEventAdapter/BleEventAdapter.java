@@ -7,14 +7,13 @@ import android.content.Intent;
 import com.thedamfr.android.BleEventAdapter.service.discovery.device.DeviceDiscoveryService;
 import com.thedamfr.android.BleEventAdapter.service.gatt.GattService;
 
-public class BleEventAdapter {
-
-    private static BleEventAdapter ourInstance = new BleEventAdapter();
+public enum BleEventAdapter {
+    INSTANCE;
 
     private BluetoothDevice bluetoothDevice;
 
     public static BleEventAdapter getInstance() {
-        return ourInstance;
+        return INSTANCE;
     }
 
     public BluetoothDevice getBluetoothDevice() {
@@ -25,19 +24,19 @@ public class BleEventAdapter {
         this.bluetoothDevice = bluetoothDevice;
     }
 
-    public void connectDevice(Context context, BluetoothDevice device) {
+    public static void connectDevice(Context context, BluetoothDevice device) {
         context.stopService(new Intent(context, GattService.class));
     }
 
-    public void closeConnection(Context context) {
+    public static void closeConnection(Context context) {
         context.stopService(new Intent(context, GattService.class));
     }
 
-    public void startScanning(Context context) {
+    public static void startScanning(Context context) {
         context.startService(new Intent(context, DeviceDiscoveryService.class));
     }
 
-    public void stopScanning(Context context) {
+    public static void stopScanning(Context context) {
         context.stopService(new Intent(context, DeviceDiscoveryService.class));
     }
 }

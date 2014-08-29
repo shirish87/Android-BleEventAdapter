@@ -11,11 +11,10 @@ import java.util.List;
 public class EventLogger {
 
     private static final String TAG = "BLE_EVENT_BUS";
-    private final BleEventBus mBleEventBus;
 
     public EventLogger() {
-        mBleEventBus = BleEventBus.getInstance();
-        mBleEventBus.register(this);
+        BleEventBusProvider.getBus()
+                .register(this);
     }
 
     @Subscribe

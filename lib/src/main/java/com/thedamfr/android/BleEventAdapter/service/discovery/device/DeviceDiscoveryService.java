@@ -7,10 +7,12 @@ import android.bluetooth.BluetoothManager;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
-import com.thedamfr.android.BleEventAdapter.BleEventBus;
+
+import com.squareup.otto.Produce;
+import com.thedamfr.android.BleEventAdapter.BleEventBusProvider;
 import com.thedamfr.android.BleEventAdapter.events.DiscoveredDevicesEvent;
 import com.thedamfr.android.BleEventAdapter.events.ScanningEvent;
-import com.squareup.otto.Produce;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,7 +20,6 @@ import java.util.Set;
 public class DeviceDiscoveryService extends Service {
 
     private static final long SCAN_PERIOD = 10000;
-    private BleEventBus mBleEventBus;
     private Set<BluetoothDevice> mBluetoothDevices = new HashSet<BluetoothDevice>();
     private BluetoothAdapter mBluetoothAdapter;
     private Handler mHandler;
@@ -26,12 +27,9 @@ public class DeviceDiscoveryService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        BleEventBusProvider.getBus().register(this);
 
-        mBleEventBus = BleEventBus.getInstance();
-        mBleEventBus.register(this);
-
-
-        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(this.BLUETOOTH_SERVICE);
+        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
 
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
@@ -65,13 +63,15 @@ public class DeviceDiscoveryService extends Service {
 
         mScanning = true;
         mBluetoothAdapter.startLeScan(mLeScanCallback);
-        mBleEventBus.post(new ScanningEvent(mScanning));
+        BleEventBusProvider.getBus()
+                .post(new ScanningEvent(mScanning));
     }
 
     private void stopScanning() {
         mScanning = false;
         mBluetoothAdapter.stopLeScan(mLeScanCallback);
-        mBleEventBus.post(new ScanningEvent(false));
+        BleEventBusProvider.getBus()
+                .post(new ScanningEvent(false));
         DeviceDiscoveryService.this.stopSelf();
     }
 
@@ -81,7 +81,8 @@ public class DeviceDiscoveryService extends Service {
                 @Override
                 public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
                     mBluetoothDevices.add(device);
-                    mBleEventBus.post(new DiscoveredDevicesEvent(device, mBluetoothDevices));
+                    BleEventBusProvider.getBus()
+                            .post(new DiscoveredDevicesEvent(device, mBluetoothDevices));
                 }
             };
 
@@ -95,7 +96,8 @@ public class DeviceDiscoveryService extends Service {
     public void onDestroy() {
         super.onDestroy();
         stopScanning();
-        mBleEventBus.unregister(this);
+        BleEventBusProvider.getBus()
+                .unregister(this);
     }
 
     public IBinder onBind(Intent intent) {

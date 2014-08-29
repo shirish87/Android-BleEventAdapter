@@ -9,7 +9,7 @@ import android.view.MenuItem;
 
 import com.squareup.otto.Subscribe;
 import com.thedamfr.android.BleEventAdapter.BleEventAdapter;
-import com.thedamfr.android.BleEventAdapter.BleEventBus;
+import com.thedamfr.android.BleEventAdapter.BleEventBusProvider;
 import com.thedamfr.android.BleEventAdapter.events.DiscoveredDevicesEvent;
 
 /**
@@ -28,8 +28,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        BleEventBus.getInstance().register(this);
-        BleEventAdapter.getInstance().startScanning(this);
+        BleEventBusProvider.getBus().register(this);
+        BleEventAdapter.startScanning(this);
     }
 
     @Subscribe
@@ -44,8 +44,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
 
-        BleEventAdapter.getInstance().stopScanning(this);
-        BleEventBus.getInstance().unregister(this);
+        BleEventAdapter.stopScanning(this);
+        BleEventBusProvider.getBus().unregister(this);
         super.onPause();
     }
 }
