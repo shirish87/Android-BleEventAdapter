@@ -23,7 +23,7 @@ public class DeviceDiscoveryService extends Service {
     private static final long SCAN_PERIOD = 10000;
     private Set<BluetoothDevice> mBluetoothDevices = new HashSet<BluetoothDevice>();
     private BluetoothAdapter mBluetoothAdapter;
-    private Handler mHandler;
+    private Handler mHandler = new Handler();
     private boolean mScanning = false;
 
     @Override
@@ -52,7 +52,6 @@ public class DeviceDiscoveryService extends Service {
     }
 
     private void startScanning() {
-        mHandler = new Handler();
         // Stops scanning after a
         //... pre-defined scan period.
         mHandler.postDelayed(new Runnable() {
