@@ -10,6 +10,7 @@ import android.os.IBinder;
 
 import com.squareup.otto.Produce;
 import com.thedamfr.android.BleEventAdapter.BleEventBusProvider;
+import com.thedamfr.android.BleEventAdapter.events.BluetoothUnavailable;
 import com.thedamfr.android.BleEventAdapter.events.DiscoveredDevicesEvent;
 import com.thedamfr.android.BleEventAdapter.events.ScanningEvent;
 
@@ -33,7 +34,7 @@ public class DeviceDiscoveryService extends Service {
         mBluetoothAdapter = bluetoothManager.getAdapter();
 
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
-            // Toast.makeText(this, "Pas de Ble, Blaireau", Toast.LENGTH_SHORT).show();
+            BleEventBusProvider.getBus().post(new BluetoothUnavailable());
             stopSelf();
         } else {
             scanLeDevice(true);
