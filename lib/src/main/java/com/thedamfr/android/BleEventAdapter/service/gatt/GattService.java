@@ -13,12 +13,11 @@ import com.thedamfr.android.BleEventAdapter.events.*;
 public class GattService extends Service {
 
     private BluetoothGatt mBluetoothGatt;
-    private String TAG = this.getClass().getSimpleName();
     private BluetoothDevice mDevice;
 
     @Override
     public IBinder onBind(Intent intent) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
@@ -53,8 +52,9 @@ public class GattService extends Service {
 
             if (newState == GattConnectionState.STATE_CONNECTED) {
                 mBluetoothGatt.discoverServices();
-                bleEventBus.post(new DiscoveryServiceEvent(1));
+                bleEventBus.post(DiscoveryServiceEvent.GATT_DISCOVERING);
             } else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
+                bleEventBus.post(DiscoveryServiceEvent.GATT_DISCONNECTED);
                 mBluetoothGatt = mDevice.connectGatt(GattService.this, false, mGattCallBack);
             }
 
@@ -107,7 +107,7 @@ public class GattService extends Service {
         public void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
             super.onReliableWriteCompleted(gatt, status);
             BleEventBusProvider.getBus()
-                    .post(new ReliableWriteCompleted(mBluetoothGatt, status));
+                    .post(new ReliableWriteCompletedEvent(mBluetoothGatt, status));
 
         }
 

@@ -4,35 +4,20 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 
 
-public class CharacteristicWriteEvent {
-    private final BluetoothGatt mGatt;
-    private final BluetoothGattCharacteristic mCharacteristic;
-    private final int mStatus;
+public class CharacteristicWriteEvent extends GattEvent {
+    public final BluetoothGattCharacteristic characteristic;
 
     public CharacteristicWriteEvent(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-        mGatt = gatt;
-        mCharacteristic = characteristic;
-        mStatus = status;
-    }
-
-    public BluetoothGatt getmGatt() {
-        return mGatt;
-    }
-
-    public BluetoothGattCharacteristic getmCharacteristic() {
-        return mCharacteristic;
-    }
-
-    public int getmStatus() {
-        return mStatus;
+        super(gatt, status);
+        this.characteristic = characteristic;
     }
 
     @Override
     public String toString() {
         return "CharacteristicWriteEvent{" +
-                "mGatt=" + mGatt +
-                ", mCharacteristic=" + mCharacteristic +
-                ", mStatus=" + mStatus +
+                "mGatt=" + gatt +
+                ", mCharacteristic=" + characteristic +
+                ", mStatus=" + status +
                 '}';
     }
 }

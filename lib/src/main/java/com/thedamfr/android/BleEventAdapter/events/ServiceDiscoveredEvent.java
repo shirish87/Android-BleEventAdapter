@@ -2,30 +2,17 @@ package com.thedamfr.android.BleEventAdapter.events;
 
 import android.bluetooth.BluetoothGatt;
 
-
-public class ServiceDiscoveredEvent {
-
-    private final int mStatus;
-    private final BluetoothGatt mGatt;
+public class ServiceDiscoveredEvent extends GattEvent {
 
     public ServiceDiscoveredEvent(BluetoothGatt gatt, int status) {
-        mGatt = gatt;
-        mStatus = status;
-    }
-
-    public BluetoothGatt getmGatt() {
-        return mGatt;
-    }
-
-    public int getmStatus() {
-        return mStatus;
+        super(gatt, status);
     }
 
     @Override
     public String toString() {
         return "ServiceDiscoveredEvent{" +
-                "mStatus=" + mStatus +
-                ", mGatt=" + mGatt +
+                "mStatus=" + status +
+                ", mGatt=" + gatt +
                 '}';
     }
 }

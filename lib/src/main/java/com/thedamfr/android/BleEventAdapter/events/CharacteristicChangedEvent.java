@@ -3,30 +3,19 @@ package com.thedamfr.android.BleEventAdapter.events;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 
-public class CharacteristicChangedEvent {
-    private final BluetoothGatt mGatt;
-    private final BluetoothGattCharacteristic mCharacteristic;
+public class CharacteristicChangedEvent extends GattEvent {
+    public final BluetoothGattCharacteristic characteristic;
 
     public CharacteristicChangedEvent(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-        mGatt = gatt;
-        mCharacteristic = characteristic;
+        super(gatt, BluetoothGatt.GATT_SUCCESS);
+        this.characteristic = characteristic;
     }
-
-    public BluetoothGatt getGatt() {
-        return mGatt;
-    }
-
-    public BluetoothGattCharacteristic getCharacteristic() {
-        return mCharacteristic;
-    }
-
-
 
     @Override
     public String toString() {
         return "CharacteristicWriteEvent{" +
-                "mGatt=" + mGatt +
-                ", mCharacteristic=" + mCharacteristic +
+                "mGatt=" + gatt +
+                ", mCharacteristic=" + characteristic +
                 '}';
     }
 }

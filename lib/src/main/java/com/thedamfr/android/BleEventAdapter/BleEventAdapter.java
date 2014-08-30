@@ -25,7 +25,8 @@ public enum BleEventAdapter {
     }
 
     public static void connectDevice(Context context, BluetoothDevice device) {
-        context.stopService(new Intent(context, GattService.class));
+        BleEventAdapter.getInstance().setBluetoothDevice(device);
+        context.startService(new Intent(context, GattService.class));
     }
 
     public static void closeConnection(Context context) {

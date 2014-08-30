@@ -10,9 +10,9 @@ public class DiscoveredDevicesEvent {
     private final BluetoothDevice[] bluetoothDevices;
     private final BluetoothDevice device;
 
-    public DiscoveredDevicesEvent(BluetoothDevice device, Set<BluetoothDevice> mBluetoothDevices) {
+    public DiscoveredDevicesEvent(BluetoothDevice device, Set<BluetoothDevice> bluetoothDevices) {
         this.device = device;
-        bluetoothDevices = mBluetoothDevices.toArray(new BluetoothDevice[mBluetoothDevices.size()]);
+        this.bluetoothDevices = bluetoothDevices.toArray(new BluetoothDevice[bluetoothDevices.size()]);
     }
 
     public BluetoothDevice[] getBluetoothDevices() {

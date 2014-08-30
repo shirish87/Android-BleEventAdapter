@@ -2,18 +2,14 @@ package com.thedamfr.android.BleEventAdapter.events;
 
 
 public class ScanningEvent {
-    private Boolean mScanning;
+    public final boolean scanning;
 
-    public ScanningEvent(Boolean scanning) {
-        this.mScanning = scanning;
-    }
-
-    public Boolean getMScanning() {
-        return mScanning;
+    public ScanningEvent(boolean scanning) {
+        this.scanning = scanning;
     }
 
     @Override
     public String toString() {
-        return "Scanning Event : " + mScanning;
+        return "Scanning Event : " + scanning;
     }
 }

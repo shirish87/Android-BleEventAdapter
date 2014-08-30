@@ -3,8 +3,20 @@ package com.thedamfr.android.BleEventAdapter;
 
 import android.bluetooth.BluetoothGattService;
 import android.util.Log;
-import com.thedamfr.android.BleEventAdapter.events.*;
+
 import com.squareup.otto.Subscribe;
+import com.thedamfr.android.BleEventAdapter.events.CharacteristicChangedEvent;
+import com.thedamfr.android.BleEventAdapter.events.CharacteristicReadEvent;
+import com.thedamfr.android.BleEventAdapter.events.CharacteristicWriteEvent;
+import com.thedamfr.android.BleEventAdapter.events.DescriptorReadEvent;
+import com.thedamfr.android.BleEventAdapter.events.DescriptorWriteEvent;
+import com.thedamfr.android.BleEventAdapter.events.DiscoveredDevicesEvent;
+import com.thedamfr.android.BleEventAdapter.events.DiscoveryServiceEvent;
+import com.thedamfr.android.BleEventAdapter.events.GattConnectionStateChangedEvent;
+import com.thedamfr.android.BleEventAdapter.events.ReadRemoteRssiEvent;
+import com.thedamfr.android.BleEventAdapter.events.ReliableWriteCompletedEvent;
+import com.thedamfr.android.BleEventAdapter.events.ScanningEvent;
+import com.thedamfr.android.BleEventAdapter.events.ServiceDiscoveredEvent;
 
 import java.util.List;
 
@@ -63,14 +75,14 @@ public class EventLogger {
     }
 
     @Subscribe
-    public void log(ReliableWriteCompleted event) {
+    public void log(ReliableWriteCompletedEvent event) {
         Log.i(TAG, event.toString());
     }
 
     @Subscribe
     public void log(ServiceDiscoveredEvent event) {
         Log.i(TAG, event.toString());
-        List<BluetoothGattService> services = event.getmGatt().getServices();
+        List<BluetoothGattService> services = event.gatt.getServices();
         for(BluetoothGattService service : services)
         {
             Log.i(TAG, service.getClass().getSimpleName() + " : "
