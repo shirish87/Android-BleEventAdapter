@@ -5,10 +5,10 @@ import android.bluetooth.BluetoothGattCharacteristic;
 
 
 public class CharacteristicReadEvent extends GattEvent {
-    public final BluetoothGattCharacteristic characteristic;
+    public final BluetoothGattCharacteristic chr;
 
-    public CharacteristicReadEvent(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+    public CharacteristicReadEvent(BluetoothGatt gatt, BluetoothGattCharacteristic chr, int status) {
         super(gatt, status);
-        this.characteristic = characteristic;
+        this.chr = chr;
     }
 }

@@ -5,11 +5,11 @@ import android.bluetooth.BluetoothGattDescriptor;
 
 
 public class DescriptorReadEvent extends GattEvent {
-    public final BluetoothGattDescriptor descriptor;
+    public final BluetoothGattDescriptor desc;
 
-    public DescriptorReadEvent(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+    public DescriptorReadEvent(BluetoothGatt gatt, BluetoothGattDescriptor desc, int status) {
         super(gatt, status);
-        this.descriptor = descriptor;
+        this.desc = desc;
     }
 
 }

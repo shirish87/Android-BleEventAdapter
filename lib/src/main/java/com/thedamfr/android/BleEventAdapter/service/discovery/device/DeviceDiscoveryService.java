@@ -82,13 +82,14 @@ public class DeviceDiscoveryService extends Service {
                 public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
                     mBluetoothDevices.add(device);
                     BleEventBusProvider.getBus()
-                            .post(new DiscoveredDevicesEvent(device, mBluetoothDevices));
+                            .post(new DiscoveredDevicesEvent(device, rssi, scanRecord,
+                                    mBluetoothDevices));
                 }
             };
 
     @Produce
     public DiscoveredDevicesEvent produceAnswer() {
-        return new DiscoveredDevicesEvent(null, mBluetoothDevices);
+        return new DiscoveredDevicesEvent(null, -1, null, mBluetoothDevices);
     }
 
 
