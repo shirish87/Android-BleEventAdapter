@@ -9,6 +9,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -24,6 +25,7 @@ public class GattService extends Service {
     private String mBluetoothDeviceAddress;
     private int mConnectionState = BluetoothProfile.STATE_DISCONNECTED;
 
+    private Handler uiHandler;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -39,22 +41,36 @@ public class GattService extends Service {
             Log.e(TAG, "No action specified");
         } else if (initialize()) {
             if (action.equals(BleEventAdapter.Actions.CONNECT)) {
-                String address = intent.getStringExtra(BleEventAdapter.ADDRESS);
+                final String address = intent.getStringExtra(BleEventAdapter.ADDRESS);
 
                 if (address != null) {
-                    connect(address);
+                    //http://stackoverflow.com/a/20507449/1131910
+
+                    uiHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            connect(address);
+                        }
+                    });
+
                 } else {
                     Log.e(TAG, "No address specified");
                 }
 
             } else if (action.equals(BleEventAdapter.Actions.DISCONNECT)) {
                 disconnect();
+                stopSelf();
             }
         }
 
         return START_NOT_STICKY;
     }
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        uiHandler = new Handler(getApplicationContext().getMainLooper());
+    }
 
     @Override
     public void onDestroy() {
@@ -106,26 +122,30 @@ public class GattService extends Service {
             return false;
         }
 
-        // Previously connected device.  Try to reconnect.
-        if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress)
-                && mBluetoothGatt != null) {
-            Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
-            if (mBluetoothGatt.connect()) {
-                mConnectionState = BluetoothProfile.STATE_CONNECTING;
-                return true;
-            } else {
-                return false;
-            }
-        }
+        //-- following code does not work (status: 133), at least for LG L34C --
+        //Previously connected device.  Try to reconnect.
+        //if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress)
+        //        && mBluetoothGatt != null) {
+        //    Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
+        //
+        //    if (mBluetoothGatt.connect()) {
+        //        mConnectionState = BluetoothProfile.STATE_CONNECTING;
+        //        return true;
+        //    } else {
+        //        return false;
+        //    }
+        //}
 
-        final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         if (device == null) {
             Log.w(TAG, "Device not found.  Unable to connect.");
             return false;
         }
+
         // We want to directly connect to the device, so we are setting the autoConnect
         // parameter to false.
-        mBluetoothGatt = device.connectGatt(this, false, mGattCallBack);
+        mBluetoothGatt = device.connectGatt(getApplicationContext(), false, mGattCallBack);
+
         Log.d(TAG, "Trying to create a new connection.");
         mBluetoothDeviceAddress = address;
         mConnectionState = BluetoothProfile.STATE_CONNECTING;
@@ -159,7 +179,7 @@ public class GattService extends Service {
         mBluetoothGatt.close();
         mBluetoothGatt = null;
     }
-    
+
 
     private BluetoothGattCallback mGattCallBack = new EventedGattCallback() {
         @Override

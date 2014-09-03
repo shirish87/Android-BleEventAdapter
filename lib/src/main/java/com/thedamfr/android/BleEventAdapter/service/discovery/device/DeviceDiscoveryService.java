@@ -7,10 +7,13 @@ import android.bluetooth.BluetoothManager;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.squareup.otto.Produce;
 import com.thedamfr.android.BleEventAdapter.BleEventBusProvider;
-import com.thedamfr.android.BleEventAdapter.events.BluetoothUnavailable;
+import com.thedamfr.android.BleEventAdapter.events.BluetoothAvailableEvent;
+import com.thedamfr.android.BleEventAdapter.events.BluetoothDisabledEvent;
+import com.thedamfr.android.BleEventAdapter.events.BluetoothUnavailableEvent;
 import com.thedamfr.android.BleEventAdapter.events.DiscoveredDevicesEvent;
 import com.thedamfr.android.BleEventAdapter.events.ScanningEvent;
 
@@ -19,6 +22,7 @@ import java.util.Set;
 
 
 public class DeviceDiscoveryService extends Service {
+    private static final String TAG = DeviceDiscoveryService.class.getSimpleName();
 
     private static final long SCAN_PERIOD = 10000;
     private Set<BluetoothDevice> mBluetoothDevices = new HashSet<BluetoothDevice>();
@@ -28,16 +32,23 @@ public class DeviceDiscoveryService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        BleEventBusProvider.getBus().register(this);
-
-        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
+        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
 
-        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
-            BleEventBusProvider.getBus().post(new BluetoothUnavailable());
+        if (mBluetoothAdapter == null) {
+            BleEventBusProvider.getBus().post(new BluetoothUnavailableEvent());
+            stopSelf();
+        } else if (!mBluetoothAdapter.isEnabled()) {
+            BleEventBusProvider.getBus().post(new BluetoothDisabledEvent());
             stopSelf();
         } else {
-            scanLeDevice(true);
+
+            if (!mScanning) {
+                BleEventBusProvider.getBus().post(new BluetoothAvailableEvent());
+                scanLeDevice(true);
+            } else {
+                Log.d(TAG, "Scan already in progress");
+            }
         }
 
         return START_NOT_STICKY;
@@ -72,7 +83,7 @@ public class DeviceDiscoveryService extends Service {
         mBluetoothAdapter.stopLeScan(mLeScanCallback);
         BleEventBusProvider.getBus()
                 .post(new ScanningEvent(false));
-        DeviceDiscoveryService.this.stopSelf();
+        stopSelf();
     }
 
 
@@ -94,11 +105,16 @@ public class DeviceDiscoveryService extends Service {
 
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+        BleEventBusProvider.getBus().register(this);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         stopScanning();
-        BleEventBusProvider.getBus()
-                .unregister(this);
+        BleEventBusProvider.getBus().unregister(this);
     }
 
     public IBinder onBind(Intent intent) {

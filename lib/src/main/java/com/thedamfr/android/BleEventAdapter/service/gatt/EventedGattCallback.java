@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothProfile;
+import android.util.Log;
 
 import com.squareup.otto.Bus;
 import com.thedamfr.android.BleEventAdapter.BleEventBusProvider;
@@ -28,16 +29,21 @@ public class EventedGattCallback extends BluetoothGattCallback {
         Bus bleEventBus = BleEventBusProvider.getBus();
         bleEventBus.post(new GattConnectionStateChangedEvent(gatt, status, newState));
 
-        if (newState == BluetoothProfile.STATE_CONNECTED) {
-            if (gatt.discoverServices()) {
-                bleEventBus.post(DiscoveryServiceEvent.GATT_DISCOVERING);
-            } else {
-                // unlikely
-                bleEventBus.post(DiscoveryServiceEvent.GATT_DISCOVER_FAILED);
-            }
+        if (status == BluetoothGatt.GATT_SUCCESS) {
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
+                if (gatt.discoverServices()) {
+                    bleEventBus.post(DiscoveryServiceEvent.GATT_DISCOVERING);
+                } else {
+                    // unlikely
+                    bleEventBus.post(DiscoveryServiceEvent.GATT_DISCOVER_FAILED);
+                }
 
-        } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-            bleEventBus.post(DiscoveryServiceEvent.GATT_DISCONNECTED);
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                bleEventBus.post(DiscoveryServiceEvent.GATT_DISCONNECTED);
+            }
+        } else {
+            Log.d("onConnectionStateChange", "Gatt operation failed - Status: " + status +
+                    " | State: " + newState);
         }
     }
 
